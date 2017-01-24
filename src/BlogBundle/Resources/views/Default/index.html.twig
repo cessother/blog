@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+
+
+		<head>
+			<meta charset ="utf-8">
+			<meta name ="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+			<title>Blog Bundle : index.html.twig</title>
+		</head>
+		<!-- sans body, la barre des profilers ne s'affiche pas -->
+		<body>
+			<header>
+				<h1> Blog Bundle :  Premier Bundle Symfony</h1>
+			</header>
+			<p> Hello Symfony !</p>
+			
+		</body>
+{% set data ='<h1>Hello World! (avec data raw et balises h1)</h1> ' %}
+{{ data |raw }}
+<!-- data raw n'affiche pas les balises mais les intègre (ici affichage format h1 -->
+
+{% set data = '<h2>Fichier(twig) créé par défault lors de la création du Bundle "BlogBundle" (avec data e)</h2>'%}
+<!-- data e affiche tout ici h2 apparait dans le navigateur et le format h2 n'est pas appliqué -->
+{{ data |e }}
+{#  #}
+
+</html>
