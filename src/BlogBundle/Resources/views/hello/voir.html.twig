@@ -1,16 +1,32 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-		<head>
-				<meta charset ="utf-8">
-				<meta name ="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-			<title> La vue "voir"</title>
-		</head>
-
-			<body>
-			<p>ici s'affiche la variable passée dans l'url : {{ id }}</p>
-			<p>ici s'affiche la variable passée dans l'url : {{ id }} {{ action }}</p>
-			<p> Ajouter :{{ url }}</p>
-			</body>
-
+	<head>
+		<meta charset ="utf-8">
+		<meta name ="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		
+		<title> Article {{ id }} :{{ action }}</title>
+	</head>
+	
+		<body>
+			<header>
+				<h1> un article</h1>
+			</header>
+		
+		
+		<main>
+				<article data-id="{{ id }}">
+					<header>
+						<h2> Titre de l'article {{ id }}</h2>
+					</header>
+					<p>paragraphe</p>
+					<footer>
+					<p>Auteur : {{ auteur }}</p>
+					<p>Lien vers l'ajout:{{ url }}</p>
+					</footer>
+				</article>
+		</main>
 			
-</html>
+			<footer>
+				symfony 2.8
+			</footer>
+		</body>

@@ -1,0 +1,28 @@
+menu_homepage:
+    path:     /
+    defaults: { _controller: MenuBundle:Default:index }
+    
+menu_menu: 
+    path: /menu
+    defaults: { _controller: MenuBundle:Menu:menu }
+
+menu_cinq: 
+    path : /cinq
+    defaults: { _controller: MenuBundle:Menu:cinq }
+    
+menu_tous:
+    path: /tous
+    defaults: { _controller: MenuBundle:Menu:tous }
+    
+menu_accueil:
+    path: /accueil
+    defaults: { _controller: MenuBundle:Menu:accueil }
+    
+menu_contact: 
+    path: /contact
+    defaults: { _controller: MenuBundle:Menu:contact }
+    
+    
+    
+
+    

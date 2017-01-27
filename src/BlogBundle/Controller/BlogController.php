@@ -14,6 +14,8 @@ use Symfony\Component\HttpFoundation\Request; // accéder aux infos de la requete
 Class BlogController extends Controller{
 	
 	public function indexAction(){
+		
+		
 		return $this->render(
 			"BlogBundle:hello:index.html.twig",
 				array(
@@ -28,34 +30,30 @@ Class BlogController extends Controller{
     //L2 path: /blog/post/{id} //(cette ligne donne le chemin url + le nom de la variable passée en paramètre
     //L3 defaults: { _controller: BlogBundle:Blog:voir }//(un controller dont le nom contient "blog", situé dans le dossier
     													//BlogBundle, ira chercher la méthode "quicontient le mot "voir)
+
 	
-	public function voirAction($id){
-		return new Response ($this->toHtml($id));
-	}
-	private function toHtml($id){
-		return '
-				<!doctype html>
-				<html>
-				
-				<h1> la variable : '.$id .' </h1>
-				</html>';
-	}
+
+		
 	
-	public function voirbAction($id,Request $request){
-		$action = $request->query->get("action","voir");// get a $_GET paramete
-			if($action == "ajouter"){
-				$url = $this->generateUrl("blog_ajouter"); // va créer tout le chemin vers la page
-				return $this->redirect($url);//exécute l'action de redirection
+		public function voirAction($id,Request $httpRequest){
+			$url="";
+			$action=$httpRequest->query->get("action", "voir");
+			
+			if($action =="ajouter"){
+				$url = $this->generateUrl("blog_hello");//génére l'url complète'
+				return $this->redirect($url);//effectue laredirection
 			}
-		
-		}
-		
-	
-		public function voircAction($id){
-			echo"test";
 			return $this->render(
 					"BlogBundle:hello:voir.html.twig",
-					array("id" => $id));
+					array(
+							"id" => $id,
+							"auteur"=> "moi",
+							"action"=>$action,
+							"url"=>$url == "" ?"url non définie":$url			//doit êtreentré à la main dans l'urlformat?action=...
+										
+							
+					)
+				);
 		}
 		
 		public function ajouter() {
@@ -69,9 +67,33 @@ Class BlogController extends Controller{
 			return $this->render("
 					
 					BlogBundle:hello:ajouter.html.twig",
-					array("date" => date ("d-m-Y H:i:s")));
+					array("date" => date ("d-m-Y H:i:s"), "menu" =>$this->menu()));
 		}
-			 
+		private function menu(){
+			return array(
+					array(
+							"libelle" =>"Accueil",
+							"route"=>"menu_accueil",
+							"titre"=>"Retour à l'accueil"
+					),
+					array(
+							"libelle" =>"Tous les articles",
+							"route"=>"menu_tous",
+							"titre"=>"Voir tous les articles"
+					),
+					array(
+							"libelle" =>"Les 5 derniers articles",
+							"route"=>"menu_cinq",
+							"titre"=>"Voir les 5derniers articles"
+					),
+					array(
+							"libelle" =>"Contact",
+							"route"=>"menu_contact",
+							"titre"=>"Contactez l'auteru de ce blog"
+					)
+		
+			);
+		}
 				
 	}
 
