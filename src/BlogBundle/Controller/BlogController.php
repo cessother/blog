@@ -1,36 +1,70 @@
 <?php
 /**
- * namespaceEspace de nom correspond gÈnÈralt au dossier contenant le controleur
+ * namespaceEspace de nom correspond gÔøΩnÔøΩralt au dossier contenant le controleur
  */
 namespace BlogBundle\Controller;
 /**
- * appel de la classe parente pour dÈfinition du controleur
+ * appel de la classe parente pour dÔøΩfinition du controleur
  */
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Response;//Classe permettant une rÈponse http simplement
-use Symfony\Component\HttpFoundation\Request; // accÈder aux infos de la requete http(ce qui se situe aprËs le ?)
+use Symfony\Component\HttpFoundation\Response;//Classe permettant une rÔøΩponse http simplement
+use Symfony\Component\HttpFoundation\Request; // accÔøΩder aux infos de la requete http(ce qui se situe aprÔøΩs le ?)
+use BlogBundle\Entity\Blog;
 
 
 Class BlogController extends Controller{
+	/**
+	 * Stocke les articles d√©j√† disponibles
+	 * @var array
+	 */
+	private $articles;
 	
 	public function indexAction(){
-		
-		
+		$this->articles = $this->getArticles();
+	
 		return $this->render(
-			"BlogBundle:hello:index.html.twig",
+				"BlogBundle:hello:index.html.twig",
 				array(
-						"pageTitle" => "J'aime symfony",
-						"innerTitle" => "Symfony esposÈ par le contrÙleur"
+						"pageTitle" => "J'aime Symfony",
+						"titreInterne" => "Symfony expos√© par le contr√¥leur",
+						"majVersion" => 1,
+						"minVersion" => 0,
+						"articles" => $this->articles
 				)
-			);
+				);
 	}
 	// voir les routes dans le fichier : symfony_prj/src/BlogBundle/Ressources/config/routing.yml
 	
-	// L1 blog_voir:// (cette ligne nomme la page ‡ afficher)
-    //L2 path: /blog/post/{id} //(cette ligne donne le chemin url + le nom de la variable passÈe en paramËtre
-    //L3 defaults: { _controller: BlogBundle:Blog:voir }//(un controller dont le nom contient "blog", situÈ dans le dossier
-    													//BlogBundle, ira chercher la mÈthode "quicontient le mot "voir)
-
+	// L1 blog_voir:// (cette ligne nomme la page ÔøΩ afficher)
+    //L2 path: /blog/post/{id} //(cette ligne donne le chemin url + le nom de la variable passÔøΩe en paramÔøΩtre
+    //L3 defaults: { _controller: BlogBundle:Blog:voir }//(un controller dont le nom contient "blog", situÔøΩ dans le dossier
+    													//BlogBundle, ira chercher la mÔøΩthode "quicontient le mot "voir)
+	private function getArticles(){
+		return array(
+				array(
+						"titre" => "Mon premier post",
+						"contenu" => "blablabla...",
+						"image" => "image/first.jpg",
+						"auteur" => "JLA",
+						"date" => new \DateTime("2016-12-23")
+				),
+				array(
+						"titre" => "Mon second post",
+						"contenu" => "blablabla...",
+						"image" => "image/second.jpg",
+						"auteur" => "JLA",
+						"date" => new \DateTime("2016-12-24")
+				),
+				array(
+						"titre" => "Mon troisi√®me post",
+						"contenu" => "blablabla...",
+						"image" => "image/third.jpg",
+						"auteur" => "JLA",
+						"date" => new \DateTime("2017-01-02")
+				)
+		);
+	}
+	
 	
 
 		
@@ -38,43 +72,104 @@ Class BlogController extends Controller{
 		public function voirAction($id,Request $httpRequest){
 			$url="";
 			$action=$httpRequest->query->get("action", "voir");
+		
+			/**
+			 * utilisation des services dcodtrine
+			 */
+			$depot = $this->getDoctrine()
+				->getManager()
+				->getRepository("BlogBundle:Blog");
 			
-			if($action =="ajouter"){
-				$url = $this->generateUrl("blog_hello");//gÈnÈre l'url complËte'
-				return $this->redirect($url);//effectue laredirection
+				/**
+				 * Demande √† Doctrine, √† partir de l'Entit√© "Blog" d'alimenter le d√©p√¥t
+				 *  "BlogRepository" avec les donn√©es associ√©e √† la cl√© primaire dont la valeur
+				 *  est $id <=>
+				 * SELECT id,date,titre,contenu,auteur,vues FROM blog WHERE id=$id;
+				 * $article = MaBase->fetch();
+				 *
+				 * @var Object $article => Contient les informations de la ligne identifi√©e par $id
+				 *  de la table blog
+				 *  find = select + fetch
+				 */
+			$article = $depot->find($id);
+			
+			
+			if($article === null){
+				throw $this->createNotFoundException("L'article de blog ".$id." n'existe pas ! ");
 			}
-			return $this->render(
-					"BlogBundle:hello:voir.html.twig",
+			/**
+			 * on visualise donc on doit alimenter le compteur
+			 */
+			$vuesCourantes= $article->getVues() +1;
+			//$vuesIncrementees = $vuesCourantes + 1;
+			
+			
+			/**
+			 * inregixtrment des infos dans la base
+			 */
+			$article->setVues($vuesCourantes);
+			
+			$this->getDoctrine()->getManager()->flush();
+					return $this->render(
+					"BlogBundle:hello:article.html.twig",
 					array(
-							"id" => $id,
-							"auteur"=> "moi",
-							"action"=>$action,
-							"url"=>$url == "" ?"url non dÈfinie":$url			//doit ÍtreentrÈ ‡ la main dans l'urlformat?action=...
-										
-							
+							"article"=>$article
+								
 					)
 				);
 		}
 		
-		public function ajouter() {
+		public function ajouterAction(Request $request) {
 			$idCree = 5;
-			// dans le controler, on rÈcupËre un objet session
-			//de cet objet session, on utilise le service getFlashBag()
-			$flashMessage = $this->get("session")->getFlashBag();
-			$flashMessage->add("info", " je suis un Message flash service de symfony")
-			->add("info", "je suis capable d'afficher la valeur".$idCree);
 			
-			return $this->render("
+			/**
+			 * R√©cup√®re le service doctrine dans la variable $doctrine
+			 * @var Ambiguous $doctrine
+			 */
+			$doctrine = $this->get("doctrine");
+			//ou...$doctrine = $this->getDoctrine();
+			//encore mieux : $manager = $this->getDoctrine()->getManager();
+			/**
+			 * Depuis le service Doctrine, on veut r√©cup√©rer le gestionnaire d'entit√©s
+			 * (Entity Manager)
+			 * @var unknown $manager
+			 */
+			$manager = $doctrine->getManager();
+			
+			$article = new Blog(); // INSTANCIATION DE L'entit√© blog
+			//$article->setId($idCree);
+			$article->setTitre(" Un post par entit√©");
+			$article->setPublication(true);
+			$article->setContenu("On utilise un objet entit√© pour, dans un premier temps, passer des infos");
+			
+			
+			$autrePost = new Blog();
+			$autrePost->setTitre("autre objet √† persister")
+					->setPublication(false)
+					->setContenu("pourquoi je peux utiliser cette notation ?")
+					->setAuteur("moi");
+			
 					
-					BlogBundle:hello:ajouter.html.twig",
-					array("date" => date ("d-m-Y H:i:s"), "menu" =>$this->menu()));
+			//oN va demander √† doctrine de faire persister l'objet $article dans la base de donn√©es
+			$manager->persist($article);
+			$manager->persist($autrePost);
+			
+			$manager->flush(); // pour √©crire l'ensemble des objets √† faire persisiter
+			// dans le controler, on r√©cup√®re un objet session
+			//de cet objet session, on utilise le service getFlashBag()
+			/**$flashMessage = $this->get("session")->getFlashBag();
+			$flashMessage->add("info", " je suis un Message flash service de symfony")
+			->add("info", "je suis capable d'afficher la valeur");**/
+			
+			return $this->render("BlogBundle:hello:ajouter.html.twig",
+					array("date" => date("d-m-Y H:i:s"), "article" =>$article));
 		}
 		private function menu(){
 			return array(
 					array(
 							"libelle" =>"Accueil",
 							"route"=>"menu_accueil",
-							"titre"=>"Retour ‡ l'accueil"
+							"titre"=>"Retour √† l'accueil"
 					),
 					array(
 							"libelle" =>"Tous les articles",
